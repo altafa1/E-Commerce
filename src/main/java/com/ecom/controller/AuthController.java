@@ -2,8 +2,8 @@ package com.ecom.controller;
 
 import com.ecom.payload.AppUserDto;
 import com.ecom.payload.LoginDto;
+import com.ecom.payload.TokenHolder;
 import com.ecom.service.AuthService;
-import org.hibernate.sql.results.internal.ResolvedSqlSelection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,14 +29,15 @@ public class AuthController {
         }
 
         @PostMapping("/login")
-    public ResponseEntity<String>loginUser(@RequestBody LoginDto dto){
-        boolean res=authService.loginUser(dto);
-        if(res){
-            return new ResponseEntity<>("login successfully",HttpStatus.OK);
-        }
-        else
-            return new ResponseEntity<>("credentials were wrong",HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?>loginUser(@RequestBody LoginDto dto) {
+            String token = authService.loginUser(dto);
+            if (token != null) {
+                TokenHolder th = new TokenHolder();
+                th.setToken(token);
+                th.setTokenType("jwt");
+                return new ResponseEntity<>(th, HttpStatus.OK);
+            }
+            return new ResponseEntity<>("credentials were wrong", HttpStatus.EXPECTATION_FAILED);
 
         }
-
 }

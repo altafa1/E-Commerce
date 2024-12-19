@@ -6,5 +6,5 @@ import com.ecom.payload.LoginDto;
 public interface AuthService {
     AppUserDto registerUser(AppUserDto dto);
 
-    boolean loginUser(LoginDto dto);
+    String loginUser(LoginDto dto);
 }

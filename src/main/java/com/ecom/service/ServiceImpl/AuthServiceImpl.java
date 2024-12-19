@@ -19,10 +19,12 @@ public class AuthServiceImpl implements AuthService {
     private ModelMapper modelMapper;
     private AppUserRepository appUserRepository;
 private ConfigClass configClass;
-    public AuthServiceImpl(ModelMapper modelMapper, AppUserRepository appUserRepository, ConfigClass configClass) {
+private JwtService jwtService;
+    public AuthServiceImpl(ModelMapper modelMapper, AppUserRepository appUserRepository, ConfigClass configClass, JwtService jwtService) {
         this.modelMapper = modelMapper;
         this.appUserRepository = appUserRepository;
         this.configClass = configClass;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -44,16 +46,17 @@ private ConfigClass configClass;
     }
 
     @Override
-    public boolean loginUser(LoginDto dto) {
+    public String loginUser(LoginDto dto) {
         Optional<AppUser> byEmailOrPhone = appUserRepository.findByEmailOrPhone(dto.getUserName(), dto.getUserName());
         if (byEmailOrPhone.isPresent()){
             AppUser appUser = byEmailOrPhone.get();
             boolean matches = configClass.passwordEncoder().matches(dto.getPassword(), appUser.getPassword());
             if(matches){
-                return true;
+                String token = jwtService.generateToken(appUser);
+                return token;
             }
         }
-        return false;
+        return null;
     }
 
     AppUser mapToEntity(AppUserDto dto){
